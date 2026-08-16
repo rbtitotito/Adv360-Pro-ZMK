@@ -65,7 +65,7 @@ in this file.
 | top pair | `Ctrl` `Alt` | `Cmd` `Ctrl` |
 | upper small | Num (hold) | Sym (hold) |
 | lower small | Num (sticky, one key) | IDE (hold) |
-| big keys | `Backspace`, `Del` / Nav (hold) | `Enter`, `Space` |
+| big keys | `Space`, `Del` / Nav (hold) | `Enter`, `Backspace` |
 
 Left thumbs reach right-hand layers and vice versa, so nothing becomes a same-finger chord.
 
