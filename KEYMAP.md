@@ -49,7 +49,7 @@ in this file.
 | # | Name | Held by | Contents |
 |---|---|---|---|
 | 0 | Base | — | QWERTY + home-row mods |
-| 1 | Kp | `Kp` toggle | stock keypad |
+| 1 | Kp | `Kp` toggle | stock keypad, thumbs matched to base (Space / Backspace, no Delete) |
 | 2 | Fn | `Fn` | stock F-keys |
 | 3 | Mod | `Mod` | Bluetooth, backlight, bootloader, Studio unlock, Colemak toggle |
 | 4 | Red — Nav | hold left thumb `Del` | arrows, word/line motion, window + desktop management |
