@@ -53,9 +53,9 @@ in this file.
 | 2 | Fn | `Fn` | stock F-keys |
 | 3 | Mod | `Mod` | Bluetooth, backlight, bootloader, Studio unlock, Colemak toggle |
 | 4 | Red — Nav | hold left thumb `Del` | arrows, word/line motion, window + desktop management |
-| 5 | Purple — Sym | hold right thumb upper-small | symbols, code operators |
-| 6 | Cyan — Num | hold left thumb upper-small | numpad on the right hand |
-| 7 | Yellow — IDE | hold right thumb lower-small | IntelliJ |
+| 5 | Purple — Sym | hold `PgUp` (right thumb) | symbols, code operators |
+| 6 | Cyan — Num | hold `Home` (left thumb) | numpad on the right hand |
+| 7 | Yellow — IDE | hold `PgDn` (right thumb) | IntelliJ |
 | 8 | Colemak | `Mod` + `Caps` | Colemak-DH practice |
 
 ### Thumb clusters
@@ -63,8 +63,8 @@ in this file.
 | | Left | Right |
 |---|---|---|
 | top pair | `Ctrl` `Alt` | `Cmd` `Ctrl` |
-| upper small | Num (hold) | Sym (hold) |
-| lower small | Num (sticky, one key) | IDE (hold) |
+| small, nearest centre gap | `Home` = Num (hold) | `PgUp` = Sym (hold) |
+| small, below those | `End` = Num (sticky) | `PgDn` = IDE (hold) |
 | big keys | `Space`, `Del` / Nav (hold) | `Enter`, `Backspace` |
 
 Left thumbs reach right-hand layers and vice versa, so nothing becomes a same-finger chord.
@@ -127,7 +127,7 @@ Z  undo           X  cut               C  copy           V  paste
 
 Both `Shift` keys stay transparent, so Shift+arrow selection works while navigating.
 
-### Sym — hold right thumb upper-small
+### Sym — hold `PgUp`
 
 ```
 Tab =    Q ^    W &    E *    R +    T \
@@ -139,7 +139,7 @@ Right hand carries code operators: `Y` → `->`, `U` → `=>`, `I` → `!=`, `O`
 
 `_` and `+` come free by holding Shift over `-` and `=`.
 
-### Num — hold left thumb upper-small, or tap lower-small for a single digit
+### Num — hold `Home`, or tap `End` for a single digit
 
 ```
 U 7   I 8   O 9   P -
@@ -147,11 +147,11 @@ H 0   J 4   K 5   L 6   ; +   ' *
 N ,   M 1   , 2   . 3   / .
 ```
 
-The lower-small left thumb key is `&sl` (sticky layer, 1 s window): tap it, type one digit,
+`End` is `&sl` (sticky layer, 1 s window): tap it, type one digit,
 it releases itself. This is not a true num-word — ZMK has no built-in equivalent to Caps Word
 for digits. A real auto-exiting version needs urob's `zmk-num-word` module.
 
-### IDE — hold right thumb lower-small
+### IDE — hold `PgDn`
 
 ```
 Tab Search Everywhere   Q Find Action     W Recent Files    E Find in Files
@@ -223,6 +223,59 @@ All properties used here were verified present in the pinned ZMK fork
 | Tap `J`+`K` together | `Esc` |
 | Hold left thumb `Del`, press `H J K L` | ← ↓ ↑ → |
 | Tap left thumb `Del` alone | forward delete |
-| Hold right thumb upper-small, press `A` `S` | `(` `)` |
+| Hold `PgUp`, press `A` `S` | `(` `)` |
 | `Mod` + `Caps`, then type `asdf` | `arst` |
 | Tap `Caps`, type `hello world` | `HELLO world` |
+
+---
+
+## Troubleshooting
+
+### Only layers 0–3 work, and Clique lists four layers
+
+Seen after first flashing the firmware that introduced layers 4–8. The firmware was fine —
+the Actions build log confirmed the keymap reached the devicetree and every layer compiled.
+
+**Cause:** ZMK Studio persists keymap state to the settings partition, and flashing firmware
+does **not** erase that partition. Stale state from before those layers existed pinned the
+layer list at four. Per-key values from the newly compiled keymap still showed through, which
+made the new firmware look live and sent us chasing the wrong thing for hours.
+
+**Fix:** settings reset on both halves, then reflash firmware on both halves.
+
+### Settings reset — read this before starting
+
+Getting the order wrong leaves the keyboard unusable until it's done correctly.
+
+- **After a settings reset the keymap is gone, so `Mod` + macro key cannot enter the
+  bootloader.** Use the physical bootloader button: paperclip, quick **double-click**.
+- **One module connected at a time**, the other unplugged and switched off.
+- **Reset, then firmware, on each half.** `settings-reset.uf2` is itself a firmware image and
+  leaves that half disabled until a real image follows it.
+- **Power the left half on first**, then the right. The left is the split central; the right
+  only searches for a peer that's already advertising.
+
+### Reading the symptoms
+
+| Symptom | Meaning |
+|---|---|
+| Right half flashing red | Can't find the central. Expected until the left half has firmware. |
+| Left half types nothing | Left is still running the reset utility, not firmware. |
+| `Mod` + `V` types a build stamp | e.g. `20260816-rob-eec6fac-clique`. Confirms which commit is running, and `-clique` vs `-.` tells you which artifact. |
+
+### On macOS the flash "error" is success
+
+```
+cp: fcopyfile failed: Input/output error
+cp: fchmod failed: Device not configured
+```
+
+That is what a **successful** UF2 flash looks like. The bootloader reboots the instant it has
+the full image, so the device vanishes mid-copy. Use `cp` rather than Finder — Finder writes
+resource-fork files that can confuse the bootloader.
+
+### Which artifact to flash
+
+`firmware-clique`, not `firmware-no-clique` — `&studio_unlock` is inert without it. The two
+jobs also produce **different** `right.uf2` binaries (the version macro differs), so always
+flash both halves from the same artifact zip.
