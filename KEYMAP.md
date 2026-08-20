@@ -65,7 +65,7 @@ in this file.
 | top pair | `Ctrl` `Alt` | `Cmd` `Ctrl` |
 | small, nearest centre gap | `Home` = Num (hold) | `PgUp` = Sym (hold) |
 | small, below those | `End` = Num (sticky) | `PgDn` = IDE (hold) |
-| big keys | `Space`, `Del` / Nav (hold) | `Backspace`, `Enter` |
+| big keys | `Space`, `Del` / Nav (hold) | `Enter`, `Backspace` |
 
 Left thumbs reach right-hand layers and vice versa, so nothing becomes a same-finger chord.
 
