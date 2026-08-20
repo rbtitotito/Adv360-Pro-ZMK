@@ -49,7 +49,7 @@ in this file.
 | # | Name | Held by | Contents |
 |---|---|---|---|
 | 0 | Base | — | QWERTY + home-row mods |
-| 1 | Kp | `Kp` toggle | stock keypad, thumbs matched to base (Space / Backspace, no Delete) |
+| 1 | Kp | `Kp` toggle | stock keypad; Space / Backspace / Enter all match base, keypad zero on the left big inner |
 | 2 | Fn | `Fn` | stock F-keys |
 | 3 | Mod | `Mod` | Bluetooth, backlight, bootloader, Studio unlock, Colemak toggle |
 | 4 | Red — Nav | hold left thumb `Del` | arrows, word/line motion, window + desktop management |
@@ -65,7 +65,7 @@ in this file.
 | top pair | `Ctrl` `Alt` | `Cmd` `Ctrl` |
 | small, nearest centre gap | `Home` = Num (hold) | `PgUp` = Sym (hold) |
 | small, below those | `End` = Num (sticky) | `PgDn` = IDE (hold) |
-| big keys | `Space`, `Del` / Nav (hold) | `Enter`, `Backspace` |
+| big keys | `Space`, `Del` / Nav (hold) | `Backspace`, `Enter` |
 
 Left thumbs reach right-hand layers and vice versa, so nothing becomes a same-finger chord.
 
@@ -77,7 +77,7 @@ Tap for the letter, hold for the modifier.
 
 ```
 A     S     D     F              J      K     L     ;
-Cmd   Opt   Ctrl  Shift          Shift  Ctrl  Opt   Cmd
+Opt   Ctrl  Cmd   Shift          Shift  Cmd   Ctrl  Opt
 ```
 
 Three guards keep them from misfiring during normal typing:
@@ -217,8 +217,8 @@ All properties used here were verified present in the pinned ZMK fork
 | Test | Expect |
 |---|---|
 | Type `asdf jkl` at speed | plain letters, no modifiers |
-| Hold `A`, press `C` | Cmd+C |
-| Hold `A`, press `S` | plain `as` — bilateral combos blocking a same-hand mod |
+| Hold `D`, press `C` | Cmd+C |
+| Hold `D`, press `S` | plain `ds` — bilateral combos blocking a same-hand mod |
 | Hold `F` for a second | `fffff` |
 | Tap `J`+`K` together | `Esc` |
 | Hold left thumb `Del`, press `H J K L` | ← ↓ ↑ → |
