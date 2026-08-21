@@ -141,6 +141,130 @@ def label(binding, layer_names):
     return b, "", "special"
 
 
+# ---------------------------------------------------------------- descriptions
+LAYER_NOTES = {
+    "Base": "QWERTY with home-row mods. Tap a home-row key for its letter, hold it "
+            "for a modifier. Modifiers only engage when the next key is on the "
+            "<em>other</em> hand, so same-hand rolls never misfire.",
+    "Kp": "Stock Kinesis keypad, toggled on and off with the Kp key. Space, "
+          "Backspace and Enter sit on the same thumb keys as the base layer, so "
+          "they do not move when you toggle it.",
+    "Fn": "Stock function row. F1–F12 replace the number row.",
+    "Mod": "Radio, lighting and firmware controls. Also where the Colemak toggle "
+           "and the ZMK Studio unlock live.",
+    "Red": "Navigation. Right hand drives the cursor, left hand drives macOS "
+           "windows and desktops. Both Shift keys stay transparent so "
+           "Shift+arrow selection still works.",
+    "Purple": "Symbols on the left hand, code operators on the right. Underscore "
+              "and plus come free by holding Shift over minus and equals.",
+    "Cyan": "Numpad on the right hand. Hold Home for a run of digits, or tap End "
+            "for a single one.",
+    "Yellow": "IntelliJ, using the macOS keymap. Left hand for navigation and "
+              "refactoring, right hand for the debugger.",
+    "Colemak": "Colemak-DH practice. Only the letters change — punctuation, "
+               "numbers, thumbs and every other layer stay put, so the rest of "
+               "your muscle memory carries over.",
+}
+
+DESC = {
+    # --- macOS windows & desktops (Nav, left hand)
+    "kp LC(LEFT)": "Previous desktop / Space",
+    "kp LC(RIGHT)": "Next desktop / Space",
+    "kp LC(UP)": "Mission Control — show all windows",
+    "kp LC(DOWN)": "App Exposé — windows of the current app",
+    "kp LG(SPACE)": "Spotlight search",
+    "kp LG(TAB)": "Application switcher",
+    "kp LG(GRAVE)": "Next window of the same app",
+    "kp LC(LG(F))": "Toggle fullscreen",
+    "kp F11": "Show desktop",
+    "kp LG(M)": "Minimise window",
+    "kp LG(Z)": "Undo",
+    "kp LG(X)": "Cut",
+    "kp LG(C)": "Copy",
+    "kp LG(V)": "Paste",
+    # --- history & tabs (Nav, right hand)
+    "kp LG(LBKT)": "Back (browser / IntelliJ navigate back)",
+    "kp LG(RBKT)": "Forward",
+    "kp LS(LG(LBKT))": "Previous tab",
+    "kp LS(LG(RBKT))": "Next tab",
+    # --- cursor motion
+    "kp LG(LEFT)": "Jump to start of line",
+    "kp LG(RIGHT)": "Jump to end of line",
+    "kp LA(LEFT)": "Move one word left",
+    "kp LA(RIGHT)": "Move one word right",
+    "kp LEFT": "Cursor left", "kp RIGHT": "Cursor right",
+    "kp UP": "Cursor up", "kp DOWN": "Cursor down",
+    "kp HOME": "Start of line", "kp END": "End of line",
+    "kp PG_UP": "Page up", "kp PG_DN": "Page down",
+    # --- IntelliJ (Yellow, left hand)
+    "kp LS(LG(A))": "Find Action — search every command",
+    "kp LG(E)": "Recent Files",
+    "kp LS(LG(F))": "Find in Files",
+    "kp LS(LG(O))": "Go to File",
+    "kp LC(R)": "Run",
+    "kp LC(D)": "Debug",
+    "kp LG(B)": "Go to Declaration",
+    "kp LA(LG(B))": "Go to Implementation",
+    "kp LA(LG(L))": "Reformat Code",
+    "kp LA(RET)": "Show Intention Actions — the quick-fix menu",
+    "kp LS(LG(RET))": "Complete Statement",
+    "kp LS(F6)": "Rename symbol",
+    "kp LA(LG(T))": "Surround With",
+    "kp LA(LG(V))": "Extract Variable",
+    "kp LA(LG(M))": "Extract Method",
+    # --- IntelliJ debugger (Yellow, right hand)
+    "kp F7": "Step into",
+    "kp F8": "Step over",
+    "kp LS(F8)": "Step out",
+    "kp LA(LG(R))": "Resume program",
+    "kp LG(F8)": "Toggle breakpoint",
+    # --- macros
+    "arrow": "Types <code>-&gt;</code>",
+    "fatarrow": "Types <code>=&gt;</code>",
+    "noteq": "Types <code>!=</code>",
+    "eqeqeq": "Types <code>===</code>",
+    "dcolon": "Types <code>::</code>",
+    "srch_evr": "Search Everywhere — double-taps Shift",
+    "gitst": "Types <code>git status</code>",
+    "gitcm": "Types <code>git commit -m \"</code>, cursor inside the quotes",
+    "macro_ver": "Types the firmware build stamp (date, branch, commit)",
+    # --- system
+    "studio_unlock": "Unlocks the keyboard for Clique / ZMK Studio",
+    "bootloader": "Reboots this half into the bootloader for flashing",
+    "bt BT_CLR": "Clears the Bluetooth pairing on this profile",
+    "stp STP_BAT": "Reports battery level",
+    "rgb_ug RGB_TOG": "Toggles the indicator LEDs",
+    "bl BL_TOG": "Toggles the backlight",
+    "bl BL_INC": "Backlight brighter",
+    "bl BL_DEC": "Backlight dimmer",
+    "kp CAPS": "Caps Lock",
+}
+for _n in range(5):
+    DESC[f"bt BT_SEL {_n}"] = f"Switch to Bluetooth profile {_n}"
+
+
+def describe(binding, layer_names):
+    """Plain-English explanation, or None if the key speaks for itself."""
+    p = binding.split(); b = p[0]
+    if b == "mo":
+        return f"Hold for the <b>{layer_names[int(p[1])]}</b> layer"
+    if b == "tog":
+        return f"Toggle the <b>{layer_names[int(p[1])]}</b> layer on and off"
+    if b == "to":
+        return f"Switch to the <b>{layer_names[int(p[1])]}</b> layer"
+    if b == "sl":
+        return f"Sticky <b>{layer_names[int(p[1])]}</b> — applies to the next key only"
+    if b == "lt":
+        return (f"Tap for <b>{kc(p[2])}</b>, hold for the "
+                f"<b>{layer_names[int(p[1])]}</b> layer")
+    if b in ("hml", "hmr", "hm"):
+        return (f"Tap for <b>{kc(p[2])}</b>, hold for "
+                f"<b>{MOD_SHORT.get(p[1], p[1])}</b>")
+    if b == "caps_word":
+        return "Types the next word in capitals, releases on space"
+    return DESC.get(binding)
+
+
 # ---------------------------------------------------------------- parsing
 LAYER_BEHAVIORS = ("mo", "tog", "to", "sl", "lt")
 
@@ -264,6 +388,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
  margin:0;padding:32px;background:#faf9f5;color:#2c2c2a;line-height:1.6}
 h1{font-size:24px;font-weight:500;margin:0 0 4px}
 h2{font-size:19px;font-weight:500;margin:36px 0 2px}
+h3{font-size:15px;font-weight:500;margin:16px 0 2px;color:#5f5e5a}
 .sub{color:#5f5e5a;font-size:14px;margin:0 0 10px}
 .kb{width:100%;max-width:900px;display:block;margin-bottom:8px}
 .card{background:#fff;border:1px solid #e6e4dc;border-radius:12px;
@@ -320,6 +445,8 @@ def main():
     for i, layer in enumerate(layers):
         h.append(f"<h2>{i} &middot; {layer['disp']}</h2>")
         srcs = reach.get(layer["disp"], [])
+        if layer["disp"] in LAYER_NOTES:
+            h.append(f"<p class='sub'>{LAYER_NOTES[layer['disp']]}</p>")
         if srcs:
             h.append("<p class='sub'>Reach it: " + ", ".join(
                 f"{v} <b>{PHYS.get(p, p)}</b>"
@@ -327,7 +454,18 @@ def main():
                 for l, p, v in srcs) + "</p>")
         elif i == 0:
             h.append("<p class='sub'>Always active. All other layers stack on top.</p>")
-        h.append("<div class='card'>" + svg(layer, names) + "</div>")
+        h.append("<div class='card'>" + svg(layer, names))
+        rows = []
+        seen = set()
+        for pos, binding in enumerate(layer["bindings"]):
+            d = describe(binding, names)
+            if not d or binding in seen:
+                continue
+            seen.add(binding)
+            rows.append(f"<tr><td><b>{PHYS.get(pos, pos)}</b></td><td>{d}</td></tr>")
+        if rows:
+            h.append("<h3>What these keys do</h3><table>" + "".join(rows) + "</table>")
+        h.append("</div>")
 
     h.append("</body></html>")
 
