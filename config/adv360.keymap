@@ -204,18 +204,18 @@
     };
 
     nav {
-      display-name = "Red";
+      display-name = "Nav";
       bindings = <
         &trans &trans        &trans        &trans          &trans        &trans        &trans                                    &trans &trans        &trans            &trans            &trans        &trans     &trans
         &trans &kp LC(LEFT)  &kp LC(UP)    &kp LC(RIGHT)   &kp LC(DOWN)  &kp LG(SPACE) &none                                     &none  &kp LG(LBKT)  &kp LS(LG(LBKT))  &kp LS(LG(RBKT))  &kp LG(RBKT)  &trans     &trans
-        &trans &kp LG(TAB)   &kp LG(GRAVE) &kp LC(LG(F))   &kp F11       &kp LG(M)     &none    &trans &trans &trans &trans      &none  &kp LEFT      &kp DOWN          &kp UP            &kp RIGHT     &kp HOME   &kp END
+        &trans &kp LG(TAB)   &kp LG(GRAVE) &kp LC(LG(F))   &kp F11       &kp LG(M)     &none    &trans &trans &trans &trans      &none  &kp LEFT      &kp DOWN          &kp UP            &kp RIGHT     &kp LC(A)  &kp LC(E)
         &trans &kp LG(Z)     &kp LG(X)     &kp LG(C)       &kp LG(V)     &trans                        &trans &trans                    &kp LG(LEFT)  &kp LA(LEFT)      &kp LA(RIGHT)     &kp LG(RIGHT) &trans     &trans
         &trans &trans        &trans        &trans          &trans                 &trans &trans        &trans &trans &trans &trans             &kp PG_UP         &kp PG_DN         &trans        &trans     &trans
       >;
     };
 
     sym {
-      display-name = "Purple";
+      display-name = "Sym";
       bindings = <
         &trans     &trans     &trans     &trans     &trans     &trans     &trans                                        &trans &trans  &trans     &trans  &trans    &trans   &trans
         &kp EQUAL  &kp CARET  &kp AMPS   &kp ASTRK  &kp PLUS   &kp BSLH   &none                                         &none  &arrow  &fatarrow  &noteq  &eqeqeq   &dcolon  &trans
@@ -226,7 +226,7 @@
     };
 
     num {
-      display-name = "Cyan";
+      display-name = "Num";
       bindings = <
         &trans &trans &trans &trans &trans &trans &trans                                     &trans &trans     &trans     &trans   &trans    &trans       &trans
         &trans &trans &trans &trans &trans &trans &none                                      &none  &trans     &kp N7     &kp N8   &kp N9    &kp MINUS    &trans
@@ -237,7 +237,7 @@
     };
 
     ide {
-      display-name = "Yellow";
+      display-name = "IDE";
       bindings = <
         &trans     &trans           &trans        &trans           &trans           &trans     &trans                                  &trans &trans  &trans  &trans     &trans        &trans       &trans
         &srch_evr  &kp LS(LG(A))    &kp LG(E)     &kp LS(LG(F))    &kp LS(LG(O))    &kp LC(R)  &none                                   &none  &gitst  &gitcm  &trans     &trans        &trans       &trans

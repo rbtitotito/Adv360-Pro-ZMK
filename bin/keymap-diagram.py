@@ -152,15 +152,15 @@ LAYER_NOTES = {
     "Fn": "Stock function row. F1–F12 replace the number row.",
     "Mod": "Radio, lighting and firmware controls. Also where the Colemak toggle "
            "and the ZMK Studio unlock live.",
-    "Red": "Navigation. Right hand drives the cursor, left hand drives macOS "
+    "Nav": "Navigation. Right hand drives the cursor, left hand drives macOS "
            "windows and desktops. Both Shift keys stay transparent so "
            "Shift+arrow selection still works.",
-    "Purple": "Symbols on the left hand, code operators on the right. Underscore "
-              "and plus come free by holding Shift over minus and equals.",
-    "Cyan": "Numpad on the right hand. Hold Home for a run of digits, or tap End "
-            "for a single one.",
-    "Yellow": "IntelliJ, using the macOS keymap. Left hand for navigation and "
-              "refactoring, right hand for the debugger.",
+    "Sym": "Symbols on the left hand, code operators on the right. Underscore "
+           "and plus come free by holding Shift over minus and equals.",
+    "Num": "Numpad on the right hand. Hold Home for a run of digits, or tap End "
+           "for a single one.",
+    "IDE": "IntelliJ, using the macOS keymap. Left hand for navigation and "
+           "refactoring, right hand for the debugger.",
     "Colemak": "Colemak-DH practice. Only the letters change — punctuation, "
                "numbers, thumbs and every other layer stay put, so the rest of "
                "your muscle memory carries over.",
@@ -188,13 +188,16 @@ DESC = {
     "kp LS(LG(LBKT))": "Previous tab",
     "kp LS(LG(RBKT))": "Next tab",
     # --- cursor motion
-    "kp LG(LEFT)": "Jump to start of line",
-    "kp LG(RIGHT)": "Jump to end of line",
+    "kp LG(LEFT)": "Jump to start of line (Cmd+←) — IntelliJ, browsers",
+    "kp LG(RIGHT)": "Jump to end of line (Cmd+→) — IntelliJ, browsers",
+    "kp LC(A)": "Jump to start of line (Ctrl+A) — terminals, readline, native fields",
+    "kp LC(E)": "Jump to end of line (Ctrl+E) — terminals, readline, native fields",
     "kp LA(LEFT)": "Move one word left",
     "kp LA(RIGHT)": "Move one word right",
     "kp LEFT": "Cursor left", "kp RIGHT": "Cursor right",
     "kp UP": "Cursor up", "kp DOWN": "Cursor down",
-    "kp HOME": "Start of line", "kp END": "End of line",
+    "kp HOME": "Home — scrolls to top of document in most macOS apps",
+    "kp END": "End — scrolls to bottom of document in most macOS apps",
     "kp PG_UP": "Page up", "kp PG_DN": "Page down",
     # --- IntelliJ (Yellow, left hand)
     "kp LS(LG(A))": "Find Action — search every command",

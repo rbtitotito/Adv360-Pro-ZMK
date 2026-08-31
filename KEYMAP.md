@@ -52,10 +52,10 @@ in this file.
 | 1 | Kp | `Kp` toggle | stock keypad; Space / Backspace / Enter all match base, keypad zero on the left big inner |
 | 2 | Fn | `Fn` | stock F-keys |
 | 3 | Mod | `Mod` | Bluetooth, backlight, bootloader, Studio unlock, Colemak toggle |
-| 4 | Red — Nav | hold left thumb `Del` | arrows, word/line motion, window + desktop management |
-| 5 | Purple — Sym | hold `PgUp` (right thumb) | symbols, code operators |
-| 6 | Cyan — Num | hold `Home` (left thumb) | numpad on the right hand |
-| 7 | Yellow — IDE | hold `PgDn` (right thumb) | IntelliJ |
+| 4 | Nav | hold left thumb `Del` | arrows, word/line motion, window + desktop management |
+| 5 | Sym | hold `PgUp` (right thumb) | symbols, code operators |
+| 6 | Num | hold `Home` (left thumb) | numpad on the right hand |
+| 7 | IDE | hold `PgDn` (right thumb) | IntelliJ |
 | 8 | Colemak | `Mod` + `Caps` | Colemak-DH practice |
 
 ### Thumb clusters
@@ -112,7 +112,7 @@ Right hand, motion:
 
 ```
 Y  back        U  prev tab     I  next tab    O  forward
-H  ←           J  ↓            K  ↑           L  →       ;  Home   '  End
+H  ←           J  ↓            K  ↑           L  →       ;  line start   '  line end
 N  line start  M  word left    ,  word right  .  line end
 ↑  PgUp        ↓  PgDn
 ```
@@ -126,6 +126,21 @@ Z  undo           X  cut               C  copy           V  paste
 ```
 
 Both `Shift` keys stay transparent, so Shift+arrow selection works while navigating.
+
+**Two pairs for line start/end, because no single pair works everywhere:**
+
+| Keys | Sends | Works in |
+|---|---|---|
+| `;` `'` | `Ctrl+A` / `Ctrl+E` | terminals, zsh/readline, native macOS text fields, VS Code |
+| `N` `.` | `Cmd+←` / `Cmd+→` | IntelliJ, browsers, most macOS apps |
+
+These were `Home` / `End` until they proved useless on macOS: in native Cocoa text views
+(Notes, Mail, Safari fields, most Electron apps) `Home` scrolls the *viewport* to the top of
+the document and leaves the caret where it was. `Ctrl+A` / `Ctrl+E` are true caret motions.
+
+IntelliJ's default macOS keymap does *not* bind `Ctrl+A` / `Ctrl+E` — that's the
+"macOS System Shortcuts" keymap variant. Use `N` / `.` in the IDE, or bind them under
+Settings → Keymap → "Move Caret to Line Start".
 
 ### Sym — hold `PgUp`
 
