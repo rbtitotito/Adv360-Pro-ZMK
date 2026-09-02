@@ -57,12 +57,13 @@ in this file.
 | 6 | Num | hold `Home` (left thumb) | numpad on the right hand |
 | 7 | IDE | hold `PgDn` (right thumb) | IntelliJ |
 | 8 | Colemak | `Mod` + `Caps` | Colemak-DH practice |
+| 9 | Mouse | hold **or tap** the right thumb's outer top key | pointer, clicks, scrolling |
 
 ### Thumb clusters
 
 | | Left | Right |
 |---|---|---|
-| top pair | `Ctrl` `Alt` | `Cmd` `Ctrl` |
+| top pair | `Ctrl` `Alt` | `Cmd` `Mouse` |
 | small, nearest centre gap | `Home` = Num (hold) | `PgUp` = Sym (hold) |
 | small, below those | `End` = Num (sticky) | `PgDn` = IDE (hold) |
 | big keys | `Space`, `Del` / Nav (hold) | `Enter`, `Backspace` |
@@ -197,6 +198,35 @@ punctuation, thumbs, all other layers — is transparent, so only the alphas cha
 The 360's wells are already column-staggered, so the "angle mod" that Colemak-DH needs on
 flat boards doesn't apply here.
 
+### Mouse — hold the right thumb's outer top key, or tap to lock it on
+
+```
+left hand                 right hand
+    E   = up                U  scroll up
+S   D   F = left/down/right H  scroll left    ;  scroll right
+                            J  left click     K  right click    L  middle click
+                            M  scroll down
+```
+
+**Hold** for a quick point-and-click — release and you are back to typing.
+**Tap** to lock the layer on for dragging or long scrolls, and tap again to leave.
+`Esc` also drops you straight back to Base, so there are two ways out.
+
+Left hand drives the cursor, right hand clicks and scrolls. Vertical scroll sits
+directly above and below the left-click key; horizontal scroll flanks the clicks
+either side.
+
+**Tuning.** Three numbers, all near the top of `config/adv360.keymap` except the last:
+
+| Setting | Now | Effect |
+|---|---|---|
+| `MOUSE_SPD` | 1200 | Top cursor speed. Raise for more reach per press. |
+| `SCRL_SPD` | 12 | Scroll step size. |
+| `time-to-max-speed-ms` (in the `&mmv` override at the end of the file) | 400 | How long to reach top speed. Lower feels twitchier, higher gives finer control at the start. |
+
+The cursor deliberately starts slow and accelerates, so short taps land precisely
+and a held key crosses the screen.
+
 ### Combos
 
 Both keys within 40 ms, guarded by the same 150 ms idle requirement:
@@ -233,6 +263,8 @@ All properties used here were verified present in the pinned ZMK fork
 |---|---|
 | Type `asdf jkl` at speed | plain letters, no modifiers |
 | Hold `D`, press `C` | Cmd+C |
+| Hold right thumb outer top, press `F` | cursor moves right |
+| Tap right thumb outer top, press `J` | left click — tap again to leave the layer |
 | Hold `D`, press `S` | plain `ds` — bilateral combos blocking a same-hand mod |
 | Hold `F` for a second | `fffff` |
 | Tap `J`+`K` together | `Esc` |

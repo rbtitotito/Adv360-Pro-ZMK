@@ -121,6 +121,17 @@ def label(binding, layer_names):
         return kc(args[1]), "hold " + layer_names[int(args[0])], "nav"
     if b in ("hml", "hmr", "hm"):
         return kc(args[1]), "hold " + MOD_SHORT.get(args[0], args[0]), "hrm"
+    if b == "mous":
+        return layer_names[int(args[0])], "hold / tap", "nav"
+    if b == "mkp":
+        return {"LCLK": "L click", "RCLK": "R click", "MCLK": "M click",
+                "MB4": "Back", "MB5": "Fwd"}.get(args[0], args[0]), "", "mouse"
+    if b == "mmv":
+        return {"MS_UP": "↑", "MS_DOWN": "↓", "MS_LEFT": "←",
+                "MS_RIGHT": "→"}.get(args[0], args[0]), "move", "mouse"
+    if b == "msc":
+        return {"SC_UP": "↑", "SC_DOWN": "↓", "SC_LEFT": "←",
+                "SC_RIGHT": "→"}.get(args[0], args[0]), "scroll", "mouse"
     if b == "sk":
         return kc(args[0]), "sticky", "special"
     if b == "bt":
@@ -161,6 +172,10 @@ LAYER_NOTES = {
            "for a single one.",
     "IDE": "IntelliJ, using the macOS keymap. Left hand for navigation and "
            "refactoring, right hand for the debugger.",
+    "Mouse": "Pointer control without reaching for the mouse. Left hand moves the "
+             "cursor, right hand clicks and scrolls. Hold the right thumb's outer top "
+             "key for a quick click, or tap it to lock the layer on for dragging and "
+             "long scrolls. Esc returns to Base.",
     "Colemak": "Colemak-DH practice. Only the letters change — punctuation, "
                "numbers, thumbs and every other layer stay put, so the rest of "
                "your muscle memory carries over.",
@@ -241,6 +256,18 @@ DESC = {
     "bl BL_INC": "Backlight brighter",
     "bl BL_DEC": "Backlight dimmer",
     "kp CAPS": "Caps Lock",
+    # --- pointer
+    "mkp LCLK": "Left click",
+    "mkp RCLK": "Right click",
+    "mkp MCLK": "Middle click",
+    "mmv MS_UP": "Move the cursor up",
+    "mmv MS_DOWN": "Move the cursor down",
+    "mmv MS_LEFT": "Move the cursor left",
+    "mmv MS_RIGHT": "Move the cursor right",
+    "msc SC_UP": "Scroll up",
+    "msc SC_DOWN": "Scroll down",
+    "msc SC_LEFT": "Scroll left",
+    "msc SC_RIGHT": "Scroll right",
 }
 for _n in range(5):
     DESC[f"bt BT_SEL {_n}"] = f"Switch to Bluetooth profile {_n}"
@@ -263,20 +290,23 @@ def describe(binding, layer_names):
     if b in ("hml", "hmr", "hm"):
         return (f"Tap for <b>{kc(p[2])}</b>, hold for "
                 f"<b>{MOD_SHORT.get(p[1], p[1])}</b>")
+    if b == "mous":
+        return (f"Hold for the <b>{layer_names[int(p[1])]}</b> layer; or tap to "
+                f"lock it on, tap again to leave")
     if b == "caps_word":
         return "Types the next word in capitals, releases on space"
     return DESC.get(binding)
 
 
 # ---------------------------------------------------------------- parsing
-LAYER_BEHAVIORS = ("mo", "tog", "to", "sl", "lt")
+LAYER_BEHAVIORS = ("mo", "tog", "to", "sl", "lt", "mous")
 
 
 def resolve(tok, defs):
     """The keymap refers to layers by #define name; swap those for indices."""
     p = tok.split()
-    if p[0] in LAYER_BEHAVIORS and len(p) > 1 and p[1] in defs:
-        p[1] = str(defs[p[1]])
+    if p[0] in LAYER_BEHAVIORS:
+        p = [p[0]] + [str(defs[a]) if a in defs else a for a in p[1:]]
         return " ".join(p)
     return tok
 
@@ -309,6 +339,7 @@ FILL = {
     "hrm": ("#E1F5EE", "#5DCAA5", "#04342C"),
     "macro": ("#FAEEDA", "#EF9F27", "#412402"),
     "special": ("#E6F1FB", "#85B7EB", "#042C53"),
+    "mouse": ("#FBEAF0", "#ED93B1", "#4B1528"),
 }
 
 
@@ -425,6 +456,7 @@ def main():
          "<div class='legend'>"]
     for kind, lbl in [("key", "key"), ("hrm", "home-row mod"),
                       ("nav", "layer navigation"), ("macro", "macro"),
+                      ("mouse", "pointer"),
                       ("special", "system"), ("trans", "▽ falls through")]:
         bg, br, _ = FILL[kind]
         h.append(f"<span><i class='sw' style='background:{bg};"
