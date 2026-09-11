@@ -75,7 +75,8 @@ for n in range(1, 13):
     KC[f"F{n}"] = f"F{n}"
 
 MODSYM = {"LG": "⌘", "RG": "⌘", "LA": "⌥", "RA": "⌥",
-          "LC": "⌃", "RC": "⌃", "LS": "⇧", "RS": "⇧"}
+          "LC": "⌃", "RC": "⌃", "LS": "⇧", "RS": "⇧",
+          "HYP": "⌃⌥⌘⇧"}
 
 MOD_SHORT = {"LGUI": "Cmd", "RGUI": "Cmd", "LALT": "Opt", "RALT": "Opt",
              "LCTRL": "Ctrl", "RCTRL": "Ctrl", "LSHFT": "Shift", "RSHFT": "Shift"}
@@ -83,10 +84,28 @@ MOD_SHORT = {"LGUI": "Cmd", "RGUI": "Cmd", "LALT": "Opt", "RALT": "Opt",
 
 def kc(tok):
     """Render a keycode, unwrapping nested modifier functions like LS(LG(A))."""
-    m = re.fullmatch(r"([LR][GACS])\((.*)\)", tok)
+    m = re.fullmatch(r"(HYP|[LR][GACS])\((.*)\)", tok)
     if m:
         return MODSYM[m.group(1)] + kc(m.group(2))
     return KC.get(tok, tok)
+
+
+# Rectangle Pro actions, keyed by the Hyper chord the Win layer sends. Keeping
+# the chord letter equal to the physical key means this table, the Win layer and
+# bin/rectangle-pro-setup.sh all line up one-to-one.
+WIN_LABEL = {
+    "HYP(Q)": ("Top L", "snap"),      "HYP(W)": ("Top ½", "snap"),
+    "HYP(E)": ("Top R", "snap"),      "HYP(R)": ("Display", "previous"),
+    "HYP(T)": ("Display", "next"),
+    "HYP(A)": ("Left ½", "snap"),     "HYP(S)": ("Max", "snap"),
+    "HYP(D)": ("Right ½", "snap"),    "HYP(F)": ("Space", "previous"),
+    "HYP(G)": ("Space", "next"),
+    "HYP(Z)": ("Bot L", "snap"),      "HYP(X)": ("Bot ½", "snap"),
+    "HYP(C)": ("Bot R", "snap"),      "HYP(V)": ("Split", "cycle"),
+    "HYP(B)": ("Tile", "2×2"),
+    "HYP(Y)": ("Restore", ""),        "HYP(U)": ("Centre", ""),
+    "HYP(I)": ("Smaller", ""),        "HYP(O)": ("Larger", ""),
+}
 
 
 MACRO_LABEL = {
@@ -102,6 +121,9 @@ def label(binding, layer_names):
     b, args = parts[0], parts[1:]
 
     if b == "kp":
+        if args[0] in WIN_LABEL:
+            main, sub = WIN_LABEL[args[0]]
+            return main, sub, "win"
         return kc(args[0]), "", "key"
     if b == "trans":
         return "▽", "", "trans"
@@ -122,6 +144,8 @@ def label(binding, layer_names):
     if b in ("hml", "hmr", "hm"):
         return kc(args[1]), "hold " + MOD_SHORT.get(args[0], args[0]), "hrm"
     if b == "mous":
+        return layer_names[int(args[0])], "hold / tap", "nav"
+    if b == "winl":
         return layer_names[int(args[0])], "hold / tap", "nav"
     if b == "mkp":
         return {"LCLK": "L click", "RCLK": "R click", "MCLK": "M click",
@@ -179,6 +203,13 @@ LAYER_NOTES = {
     "Colemak": "Colemak-DH practice. Only the letters change — punctuation, "
                "numbers, thumbs and every other layer stay put, so the rest of "
                "your muscle memory carries over.",
+    "Win": "Rectangle Pro. The left hand is a 3×3 grid laid out like the screen: "
+           "top row snaps to the top, middle row to the middle, bottom row to the "
+           "bottom. Columns 5 and 6 throw the window to another display or Space, "
+           "previous on the left, next on the right. Every key sends a Hyper "
+           "(⌃⌥⌘⇧) chord whose letter matches the key you pressed — nothing else "
+           "on macOS uses four modifiers, so none of it can collide. Repeating a "
+           "half cycles its size (½ → ⅔ → ⅓). Esc returns to Base.",
 }
 
 DESC = {
@@ -268,6 +299,28 @@ DESC = {
     "msc SC_DOWN": "Scroll down",
     "msc SC_LEFT": "Scroll left",
     "msc SC_RIGHT": "Scroll right",
+    # --- Rectangle Pro (Win layer). Repeating a half cycles ½ → ⅔ → ⅓.
+    "kp HYP(Q)": "Snap to the top-left quarter",
+    "kp HYP(W)": "Snap to the top half — the stacked split, and the one to use "
+                 "on the portrait display",
+    "kp HYP(E)": "Snap to the top-right quarter",
+    "kp HYP(R)": "Throw the window to the previous display",
+    "kp HYP(T)": "Throw the window to the next display",
+    "kp HYP(A)": "Snap to the left half — press again for ⅔, again for ⅓",
+    "kp HYP(S)": "Maximise",
+    "kp HYP(D)": "Snap to the right half — press again for ⅔, again for ⅓",
+    "kp HYP(F)": "Throw the window to the previous Space, and follow it",
+    "kp HYP(G)": "Throw the window to the next Space, and follow it",
+    "kp HYP(Z)": "Snap to the bottom-left quarter",
+    "kp HYP(X)": "Snap to the bottom half",
+    "kp HYP(C)": "Snap to the bottom-right quarter",
+    "kp HYP(V)": "Cycle two windows through the Split layout: side by side, "
+                 "then stacked, then ⅔ + ⅓",
+    "kp HYP(B)": "Tile every window on the display in a 2×2 grid",
+    "kp HYP(Y)": "Restore the window to its size before Rectangle touched it",
+    "kp HYP(U)": "Centre the window without resizing it",
+    "kp HYP(I)": "Shrink the window a step",
+    "kp HYP(O)": "Grow the window a step",
 }
 for _n in range(5):
     DESC[f"bt BT_SEL {_n}"] = f"Switch to Bluetooth profile {_n}"
@@ -293,13 +346,16 @@ def describe(binding, layer_names):
     if b == "mous":
         return (f"Hold for the <b>{layer_names[int(p[1])]}</b> layer; or tap to "
                 f"lock it on, tap again to leave")
+    if b == "winl":
+        return (f"Hold for the <b>{layer_names[int(p[1])]}</b> layer; or tap to "
+                f"lock it on for a run of window moves, tap again to leave")
     if b == "caps_word":
         return "Types the next word in capitals, releases on space"
     return DESC.get(binding)
 
 
 # ---------------------------------------------------------------- parsing
-LAYER_BEHAVIORS = ("mo", "tog", "to", "sl", "lt", "mous")
+LAYER_BEHAVIORS = ("mo", "tog", "to", "sl", "lt", "mous", "winl")
 
 
 def resolve(tok, defs):
@@ -340,6 +396,7 @@ FILL = {
     "macro": ("#FAEEDA", "#EF9F27", "#412402"),
     "special": ("#E6F1FB", "#85B7EB", "#042C53"),
     "mouse": ("#FBEAF0", "#ED93B1", "#4B1528"),
+    "win": ("#E4F4F7", "#5AB7C8", "#06333C"),
 }
 
 
@@ -379,12 +436,12 @@ def svg(layer, layer_names):
 PHYS = {
     0: "=", 1: "1", 2: "2", 3: "3", 4: "4", 5: "5", 6: "Kp",
     7: "Mod", 8: "6", 9: "7", 10: "8", 11: "9", 12: "0", 13: "-",
-    14: "Tab", 15: "Q", 16: "W", 17: "E", 18: "R", 19: "T", 20: "macro key",
-    21: "macro key", 22: "Y", 23: "U", 24: "I", 25: "O", 26: "P", 27: "\\",
-    28: "Esc", 29: "A", 30: "S", 31: "D", 32: "F", 33: "G", 34: "macro key",
+    14: "Tab", 15: "Q", 16: "W", 17: "E", 18: "R", 19: "T", 20: "macro key (right of T)",
+    21: "macro key (left of Y)", 22: "Y", 23: "U", 24: "I", 25: "O", 26: "P", 27: "\\",
+    28: "Esc", 29: "A", 30: "S", 31: "D", 32: "F", 33: "G", 34: "macro key (right of G)",
     35: "Ctrl (L thumb)", 36: "Alt (L thumb)",
     37: "Cmd (R thumb)", 38: "Ctrl (R thumb)",
-    39: "macro key", 40: "H", 41: "J", 42: "K", 43: "L", 44: ";", 45: "'",
+    39: "macro key (left of H)", 40: "H", 41: "J", 42: "K", 43: "L", 44: ";", 45: "'",
     46: "Shift (L)", 47: "Z", 48: "X", 49: "C", 50: "V", 51: "B",
     52: "Home (L thumb, upper small)", 53: "PgUp (R thumb, upper small)",
     54: "N", 55: "M", 56: ",", 57: ".", 58: "/", 59: "Shift (R)",
@@ -403,7 +460,8 @@ def nav_summary(layers):
     for li, layer in enumerate(layers):
         for pos, b in enumerate(layer["bindings"]):
             p = b.split()
-            if p[0] in ("mo", "tog", "to", "sl") and len(p) > 1 and p[1].isdigit():
+            if p[0] in ("mo", "tog", "to", "sl", "mous", "winl") and len(p) > 1 \
+                    and p[1].isdigit():
                 tgt = int(p[1])
             elif p[0] == "lt" and len(p) > 2 and p[1].isdigit():
                 tgt = int(p[1])
@@ -412,7 +470,8 @@ def nav_summary(layers):
             if tgt >= len(names):
                 continue
             verb = {"mo": "hold", "tog": "toggle", "to": "go to",
-                    "sl": "sticky tap", "lt": "hold"}[p[0]]
+                    "sl": "sticky tap", "lt": "hold",
+                    "mous": "hold or tap", "winl": "hold or tap"}[p[0]]
             reach[names[tgt]].append((names[li], pos, verb))
     return reach
 
@@ -457,6 +516,7 @@ def main():
     for kind, lbl in [("key", "key"), ("hrm", "home-row mod"),
                       ("nav", "layer navigation"), ("macro", "macro"),
                       ("mouse", "pointer"),
+                      ("win", "window management"),
                       ("special", "system"), ("trans", "▽ falls through")]:
         bg, br, _ = FILL[kind]
         h.append(f"<span><i class='sw' style='background:{bg};"

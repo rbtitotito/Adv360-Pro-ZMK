@@ -16,6 +16,7 @@
 #define IDE     7
 #define CMK     8
 #define MOUSE   9
+#define WIN    10
 
 #define KEYS_L  0  1  2  3  4  5  6 14 15 16 17 18 19 20 28 29 30 31 32 33 34 46 47 48 49 50 51 60 61 62 63 64
 #define KEYS_R  7  8  9 10 11 12 13 21 22 23 24 25 26 27 39 40 41 42 43 44 45 54 55 56 57 58 59 71 72 73 74 75
@@ -33,6 +34,12 @@
 #define SC_DOWN  MOVE_Y(-SCRL_SPD)
 #define SC_LEFT  MOVE_X(-SCRL_SPD)
 #define SC_RIGHT MOVE_X(SCRL_SPD)
+
+/* Hyper = Ctrl+Opt+Cmd+Shift. Nothing in macOS or any app binds four modifiers,
+   so the whole family is free for Rectangle Pro. The keyboard is the only thing
+   that ever types these, so the chord being unreachable by hand does not matter.
+   See KEYMAP.md and bin/rectangle-pro-setup.sh for the other half of this. */
+#define HYP(k) LC(LA(LG(LS(k))))
 
 / {
     behaviors {
@@ -52,6 +59,15 @@
       mous: mouse_layer {
           compatible = "zmk,behavior-hold-tap";
           label = "MOUSE_LAYER";
+          #binding-cells = <2>;
+          flavor = "hold-preferred";
+          tapping-term-ms = <200>;
+          bindings = <&mo>, <&tog>;
+      };
+
+      winl: window_layer {
+          compatible = "zmk,behavior-hold-tap";
+          label = "WINDOW_LAYER";
           #binding-cells = <2>;
           flavor = "hold-preferred";
           tapping-term-ms = <200>;
@@ -187,7 +203,7 @@
       bindings = <
         &kp EQUAL &kp N1    &kp N2      &kp N3       &kp N4       &kp N5 &tog KEYPAD                                                        &mo MOD &kp N6 &kp N7        &kp N8        &kp N9       &kp N0         &kp MINUS
         &kp TAB   &kp Q     &kp W       &kp E        &kp R        &kp T  &none                                                              &none   &kp Y  &kp U         &kp I         &kp O        &kp P          &kp BSLH
-        &kp ESC   &hml LALT A &hml LCTRL S &hml LGUI  D &hml LSHFT F &kp G &none         &kp LCTRL &kp LALT &kp LGUI &mous MOUSE MOUSE               &none   &kp H  &hmr RSHFT J  &hmr RGUI  K  &hmr RCTRL L  &hmr RALT SEMI &kp SQT
+        &kp ESC   &hml LALT A &hml LCTRL S &hml LGUI  D &hml LSHFT F &kp G &none         &kp LCTRL &kp LALT &kp LGUI &mous MOUSE MOUSE               &winl WIN WIN &kp H  &hmr RSHFT J  &hmr RGUI  K  &hmr RCTRL L  &hmr RALT SEMI &kp SQT
         &kp LSHFT &kp Z     &kp X       &kp C        &kp V        &kp B                           &mo NUM  &mo SYM                                  &kp N  &kp M         &kp COMMA     &kp DOT      &kp FSLH       &kp RSHFT
         &mo FN    &kp GRAVE &caps_word  &kp LEFT     &kp RIGHT               &kp SPACE &lt NAV DEL &sl NUM  &mo IDE  &kp ENTER &kp BSPC                    &kp UP        &kp DOWN      &kp LBKT     &kp RBKT       &mo FN
       >;
@@ -198,7 +214,7 @@
       bindings = <
         &kp EQUAL &kp N1    &kp N2   &kp N3   &kp N4     &kp N5 &trans                                                           &mo MOD &kp N6 &kp KP_NUM &kp KP_EQUAL &kp KP_DIVIDE &kp KP_MULTIPLY &kp MINUS
         &kp TAB   &kp Q     &kp W    &kp E    &kp R      &kp T  &none                                                            &none   &kp Y  &kp KP_N7  &kp KP_N8    &kp KP_N9     &kp KP_MINUS    &kp BSLH
-        &kp ESC   &kp A     &kp S    &kp D    &kp F      &kp G  &none           &kp LCTRL &kp LALT &kp LGUI  &kp RCTRL           &none   &kp H  &kp KP_N4  &kp KP_N5    &kp KP_N6     &kp KP_PLUS     &kp SQT
+        &kp ESC   &kp A     &kp S    &kp D    &kp F      &kp G  &none           &kp LCTRL &kp LALT &kp LGUI  &kp RCTRL           &trans  &kp H  &kp KP_N4  &kp KP_N5    &kp KP_N6     &kp KP_PLUS     &kp SQT
         &kp LSHFT &kp Z     &kp X    &kp C    &kp V      &kp B                            &kp HOME &kp PG_UP                             &kp N  &kp KP_N1  &kp KP_N2    &kp KP_N3     &kp KP_ENTER    &kp RSHFT
         &mo FN    &kp GRAVE &kp CAPS &kp LEFT &kp RIGHT                &kp SPACE &kp KP_N0   &kp END  &kp PG_DN &kp ENTER &kp BSPC                &kp UP     &kp DOWN     &kp KP_DOT    &kp RBKT        &mo FN
       >;
@@ -275,7 +291,7 @@
       bindings = <
         &trans &trans      &trans      &trans      &trans      &trans &trans                                          &trans &trans &trans        &trans        &trans       &trans         &trans
         &trans &kp Q       &kp W       &kp F       &kp P       &kp B  &none                                           &none  &kp J  &kp L         &kp U         &kp Y        &kp SEMI       &trans
-        &trans &hml LALT A &hml LCTRL R &hml LGUI  S &hml LSHFT T &kp G &none      &trans &trans &trans &trans          &none  &kp M  &hmr RSHFT N  &hmr RGUI  E  &hmr RCTRL I  &hmr RALT O    &trans
+        &trans &hml LALT A &hml LCTRL R &hml LGUI  S &hml LSHFT T &kp G &none      &trans &trans &trans &trans          &trans &kp M  &hmr RSHFT N  &hmr RGUI  E  &hmr RCTRL I  &hmr RALT O    &trans
         &trans &kp Z       &kp X       &kp C       &kp D       &kp V                     &trans &trans                        &kp K  &kp H         &kp COMMA     &kp DOT      &kp FSLH       &trans
         &trans &trans      &trans      &trans      &trans             &trans &trans      &trans &trans &trans &trans                 &trans        &trans        &trans       &trans         &trans
       >;
@@ -289,6 +305,17 @@
         &to BASE &trans &mmv MS_LEFT &mmv MS_DOWN  &mmv MS_RIGHT &trans &none    &trans &trans &trans &trans        &none  &msc SC_LEFT &mkp LCLK    &mkp RCLK &mkp MCLK &msc SC_RIGHT &trans
         &trans   &trans &trans       &trans        &trans        &trans                  &trans &trans                     &trans       &msc SC_DOWN &trans    &trans    &trans        &trans
         &trans   &trans &trans       &trans        &trans                 &trans &trans  &trans &trans &trans &trans                    &trans       &trans    &trans    &trans        &trans
+      >;
+    };
+
+    win {
+      display-name = "Win";
+      bindings = <
+        &trans   &trans          &trans          &trans          &trans          &trans          &trans                                    &trans &trans &trans &trans &trans &trans &trans
+        &trans   &kp HYP(Q)      &kp HYP(W)      &kp HYP(E)      &kp HYP(R)      &kp HYP(T)      &trans                                    &trans &trans &trans &trans &trans &trans &trans
+        &to BASE &kp HYP(A)      &kp HYP(S)      &kp HYP(D)      &kp HYP(F)      &kp HYP(G)      &trans   &trans &trans &trans &trans      &trans &trans &trans &trans &trans &trans &trans
+        &trans   &kp HYP(Z)      &kp HYP(X)      &kp HYP(C)      &kp HYP(V)      &kp HYP(B)               &trans &trans                           &trans &trans &trans &trans &trans &trans
+        &trans   &kp HYP(Y)      &kp HYP(U)      &kp HYP(I)      &kp HYP(O)              &trans &trans    &trans &trans &trans &trans                    &trans &trans &trans &trans &trans
       >;
     };
 

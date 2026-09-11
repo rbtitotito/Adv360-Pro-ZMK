@@ -25,6 +25,12 @@ The two "macro" keys are the **blank key immediately right of `T`** (left half) 
 Physical reset buttons are the fallback — User Manual §2.7 for location, §5.9 for use.
 `settings-reset.uf2` in the repo root recovers a bad flash.
 
+> **If you are flashing the commit that added the Win layer, do a settings reset first.**
+> The layer count went from 10 to 11, and ZMK Studio pins the layer list in the settings
+> partition, which flashing does *not* erase. Skip the reset and the symptom is that every
+> layer works except Win. See "Only layers 0–3 work" below for the full procedure — the
+> order matters, and getting it wrong leaves the keyboard unusable until you redo it.
+
 ### Staying current with upstream
 
 ```bash
@@ -58,6 +64,7 @@ in this file.
 | 7 | IDE | hold `PgDn` (right thumb) | IntelliJ |
 | 8 | Colemak | `Mod` + `Caps` | Colemak-DH practice |
 | 9 | Mouse | hold **or tap** the right thumb's outer top key | pointer, clicks, scrolling |
+| 10 | Win | hold **or tap** the blank key left of `H` | Rectangle Pro — snapping, displays, Spaces, layouts |
 
 ### Thumb clusters
 
@@ -69,6 +76,21 @@ in this file.
 | big keys | `Space`, `Del` / Nav (hold) | `Enter`, `Backspace` |
 
 Left thumbs reach right-hand layers and vice versa, so nothing becomes a same-finger chord.
+
+### The four blank keys
+
+Each half has an extra innermost column, the one Kinesis puts `Kp` and `Mod` on. The two
+keys below those are blank from the factory:
+
+| Position | Where | Bound to |
+|---|---|---|
+| 20 | right of `T` | bootloader, on the `Mod` layer |
+| 21 | left of `Y` | bootloader, on the `Mod` layer |
+| 34 | right of `G` | still free |
+| 39 | left of `H` | **Win layer** — hold, or tap to lock on |
+
+Position 39 is the Win key. Right index holds it, left hand does the work, so window
+management follows the same cross-hand rule as everything else.
 
 ---
 
@@ -227,6 +249,67 @@ either side.
 The cursor deliberately starts slow and accelerates, so short taps land precisely
 and a held key crosses the screen.
 
+### Win — hold the blank key left of `H`, or tap to lock it on
+
+Drives [Rectangle Pro](https://rectangleapp.com/pro). The left hand is a 3×3 grid laid out
+like the screen — top row snaps to the top, bottom row to the bottom — with the two outer
+columns throwing the window somewhere else entirely.
+
+```
+Q  top left     W  top half     E  top right    R  prev display   T  next display
+A  left half    S  maximize     D  right half   F  prev Space     G  next Space
+Z  bottom left  X  bottom half  C  bottom right V  split layout   B  tile 2×2
+`  restore     Caps centre      ←  smaller      →  larger
+```
+
+`Esc` drops you straight back to Base, exactly as on the Mouse layer.
+
+**Side by side vs stacked.** `A` / `D` split a display vertically, `W` / `X` split it
+horizontally. Both are first-class because the LG runs in portrait, where stacking is the
+useful split, while the Dell ultrawide wants side by side.
+
+**Repeating a half cycles its size.** `A` `A` `A` gives left ½ → left ⅔ → left ⅓, in place.
+That is Rectangle's `subsequentExecutionMode`, deliberately set to *resize* rather than
+*cycle displays* — `R` and `T` already do displays, and they do it without resizing.
+
+**`V` cycles a two-window layout:** side by side, then stacked, then ⅔ + ⅓.
+
+**`F` / `G` take the window with you.** The Nav layer's `Q` / `E` move *you* between Spaces
+and leave the window behind; Win's `F` / `G` move the window too. Rectangle implements this
+by grabbing the title bar and firing the system Space shortcut, so
+System Settings → Keyboard → Keyboard Shortcuts → Mission Control → "Move left/right a
+space" has to stay enabled on its `Ctrl`+arrow defaults.
+
+#### Why Hyper
+
+Every key on this layer sends **`Ctrl`+`Opt`+`Cmd`+`Shift`** plus a letter, written in the
+keymap as `HYP(k)`. Nothing in macOS or any application binds four modifiers, so the entire
+family is free and no shortcut on this layer can ever be shadowed by the app in front. You
+never type these by hand — the keyboard is the only thing that produces them.
+
+The letter always matches the physical key, so the Win layer, the table below and
+`bin/rectangle-pro-setup.sh` line up one to one.
+
+Both `Shift` keys stay transparent, which reserves a second tier for later: holding Shift on
+this layer produces a five-modifier chord that Rectangle can bind separately — `⇧R` for
+*Previous Display Ratio*, say, which preserves relative size across displays of very
+different shapes.
+
+#### The Rectangle Pro side
+
+```bash
+./bin/rectangle-pro-setup.sh          # apply
+./bin/rectangle-pro-setup.sh --show   # print what is currently bound
+./bin/rectangle-pro-setup.sh --reset  # unbind
+```
+
+It writes `com.knollsoft.Hookshot` defaults directly, so the binding is reproducible on a new
+machine and reviewable in git rather than clicked into a settings pane. Rectangle Pro's
+General tab still has a "Restore Default Shortcuts & Snap Areas" button if you want out.
+
+One thing it cannot do: **the `V` layout**. Layouts are stored in an encoded blob, so build
+that one in Settings → Layouts by hand. The script prints the recipe when it finishes.
+
 ### Combos
 
 Both keys within 40 ms, guarded by the same 150 ms idle requirement:
@@ -247,10 +330,25 @@ what `hold-trigger-key-positions` uses to implement bilateral combos.
 
 Every layer must contain exactly 76 bindings, in rows of 14 / 14 / 18 / 14 / 16. A miscount
 is the most common build failure and the error message doesn't always point at the right line.
+`bin/keymap-diagram.py` counts them and refuses to run if a layer is wrong, so it is worth
+running as a cheap pre-flight check before pushing:
+
+```bash
+python3 bin/keymap-diagram.py     # validates, and regenerates docs/keymap.html
+```
+
+Re-run it after **any** keymap change — `docs/keymap.html` is generated, never hand-edited.
 
 The stock `hm` behavior is left byte-identical to upstream (including its deprecated
 `quick_tap_ms` spelling) to keep the diff minimal; the new `hml` / `hmr` behaviors use the
 current `quick-tap-ms`.
+
+`HYP(k)` expands to `LC(LA(LG(LS(k))))`. Four-deep modifier nesting is ordinary preprocessor
+work — the same mechanism as the `LS(LG(LBKT))` bindings on the Nav layer, one level deeper.
+
+`&none` blocks fall-through, so a key that should reach a layer from a *toggled* layer has to
+be `&trans` there explicitly. That is why position 39 is `&trans` on both `keypad` and
+`colemak`: without it, toggling either one would strand the Win layer out of reach.
 
 All properties used here were verified present in the pinned ZMK fork
 (`refil/zmk` @ `adv360-z3.5-2`) rather than assumed.
@@ -273,6 +371,12 @@ All properties used here were verified present in the pinned ZMK fork
 | Hold `PgUp`, press `A` `S` | `(` `)` |
 | `Mod` + `Caps`, then type `asdf` | `arst` |
 | Tap `Caps`, type `hello world` | `HELLO world` |
+| Hold the blank key left of `H`, press `A` then `D` | window snaps to the left half, then the right |
+| Same, press `A` three times | left ½ → ⅔ → ⅓, without moving display |
+| Same, press `T` twice | window walks Retina → LG → Dell |
+| Same, press `G` | window moves to the next Space, and you follow it |
+| Same, press `W` on the portrait LG | top half |
+| Tap that key, press `A`, then `Esc` | layer locks on, snaps, then returns to Base |
 
 ---
 
