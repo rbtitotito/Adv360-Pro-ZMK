@@ -143,10 +143,17 @@ N  line start  M  word left    ,  word right  .  line end
 Left hand, window and desktop management:
 
 ```
+4  screenshot region → clipboard
 Q  prev desktop   W  Mission Control   E  next desktop   R  app windows   T  Spotlight
 A  app switcher   S  next window       D  fullscreen     F  show desktop  G  minimize
 Z  undo           X  cut               C  copy           V  paste
 ```
+
+`Nav`+`4` sends `Ctrl+Shift+Cmd+4` — drag to select a region, image goes to the clipboard.
+It lives here because the home-row mods cannot produce it: `Ctrl`/`Shift`/`Cmd` are all
+left-hand (`S`/`F`/`D`) and so is `4`, which `hold-trigger-key-positions` blocks by design.
+Drop the `LC()` from the `SHOT` define in `config/adv360.keymap` to save a file to the
+desktop instead.
 
 Both `Shift` keys stay transparent, so Shift+arrow selection works while navigating.
 

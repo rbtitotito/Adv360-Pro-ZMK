@@ -67,6 +67,7 @@ KC = {
     "KP_NUM": "Num", "KP_EQUAL": "K=", "KP_DIVIDE": "K/",
     "KP_MULTIPLY": "K*", "KP_MINUS": "K-", "KP_PLUS": "K+",
     "KP_ENTER": "KEnt", "KP_DOT": "K.",
+    "SHOT": "⌃⇧⌘4",
 }
 for n in range(10):
     KC[f"N{n}"] = str(n)
@@ -223,6 +224,7 @@ DESC = {
     "kp LG(GRAVE)": "Next window of the same app",
     "kp LC(LG(F))": "Toggle fullscreen",
     "kp F11": "Show desktop",
+    "kp SHOT": "Screenshot — drag to select a region, image goes to the clipboard",
     "kp LG(M)": "Minimise window",
     "kp LG(Z)": "Undo",
     "kp LG(X)": "Cut",

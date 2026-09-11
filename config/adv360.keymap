@@ -41,6 +41,10 @@
    See KEYMAP.md and bin/rectangle-pro-setup.sh for the other half of this. */
 #define HYP(k) LC(LA(LG(LS(k))))
 
+/* macOS region screenshot, drag to select, result lands on the clipboard.
+   Drop the LC() to save a file to the desktop instead. */
+#define SHOT LC(LS(LG(N4)))
+
 / {
     behaviors {
       #include "macros.dtsi"
@@ -245,7 +249,7 @@
     nav {
       display-name = "Nav";
       bindings = <
-        &trans &trans        &trans        &trans          &trans        &trans        &trans                                    &trans &trans        &trans            &trans            &trans        &trans     &trans
+        &trans &trans        &trans        &trans          &kp SHOT      &trans        &trans                                    &trans &trans        &trans            &trans            &trans        &trans     &trans
         &trans &kp LC(LEFT)  &kp LC(UP)    &kp LC(RIGHT)   &kp LC(DOWN)  &kp LG(SPACE) &none                                     &none  &kp LG(LBKT)  &kp LS(LG(LBKT))  &kp LS(LG(RBKT))  &kp LG(RBKT)  &trans     &trans
         &trans &kp LG(TAB)   &kp LG(GRAVE) &kp LC(LG(F))   &kp F11       &kp LG(M)     &none    &trans &trans &trans &trans      &none  &kp LEFT      &kp DOWN          &kp UP            &kp RIGHT     &kp LC(A)  &kp LC(E)
         &trans &kp LG(Z)     &kp LG(X)     &kp LG(C)       &kp LG(V)     &trans                        &trans &trans                    &kp LG(LEFT)  &kp LA(LEFT)      &kp LA(RIGHT)     &kp LG(RIGHT) &trans     &trans
