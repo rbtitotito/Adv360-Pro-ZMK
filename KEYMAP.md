@@ -249,12 +249,18 @@ either side.
 
 | Setting | Now | Effect |
 |---|---|---|
-| `MOUSE_SPD` | 1200 | Top cursor speed. Raise for more reach per press. |
+| `MOUSE_SPD` | 3600 | Top cursor speed, in pixels per second. Crosses a 3440px ultrawide in about a second. |
 | `SCRL_SPD` | 12 | Scroll step size. |
-| `time-to-max-speed-ms` (in the `&mmv` override at the end of the file) | 400 | How long to reach top speed. Lower feels twitchier, higher gives finer control at the start. |
+| `time-to-max-speed-ms` (in the `&mmv` override at the end of the file) | 300 | How long to reach top speed. Lower feels twitchier, higher gives finer control at the start. |
 
 The cursor deliberately starts slow and accelerates, so short taps land precisely
 and a held key crosses the screen.
+
+`MOUSE_SPD` is not DPI — it is a speed, not a sensitivity, because there is no
+physical movement to scale. A 2550 DPI mouse only hits 2550 px/s when you actually
+drag it an inch per second, and in practice you flick it far faster than that, so
+match the feel rather than the number. The ceiling is 32767; past roughly 5000 the
+cursor gets hard to stop on a target.
 
 ### Win — hold the blank key left of `H`, or tap to lock it on
 
