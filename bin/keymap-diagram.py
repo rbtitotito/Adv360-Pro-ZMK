@@ -75,6 +75,38 @@ for n in range(10):
 for n in range(1, 13):
     KC[f"F{n}"] = f"F{n}"
 
+# Raw characters for every keycode that types a programming symbol. Drives the
+# brace / code colouring and the "Where's that symbol?" lookup.
+CHAR = {
+    "LPAR": "(", "RPAR": ")", "LBKT": "[", "RBKT": "]", "LBRC": "{", "RBRC": "}",
+    "LT": "<", "GT": ">",
+    "EQUAL": "=", "MINUS": "-", "PLUS": "+", "ASTRK": "*", "FSLH": "/",
+    "BSLH": "\\", "PIPE": "|", "AMPS": "&", "CARET": "^", "TILDE": "~",
+    "EXCL": "!", "PRCNT": "%", "AT": "@", "HASH": "#", "DLLR": "$",
+    "UNDER": "_", "QMARK": "?", "SEMI": ";", "COLON": ":", "COMMA": ",",
+    "DOT": ".", "SQT": "'", "DQT": '"', "GRAVE": "`",
+}
+BRACES = set("()[]{}<>")
+
+# What Shift turns each key into on a US layout.
+SHIFTED = {
+    "N1": "!", "N2": "@", "N3": "#", "N4": "$", "N5": "%", "N6": "^", "N7": "&",
+    "N8": "*", "N9": "(", "N0": ")", "MINUS": "_", "EQUAL": "+", "LBKT": "{",
+    "RBKT": "}", "BSLH": "|", "SEMI": ":", "SQT": '"', "COMMA": "<", "DOT": ">",
+    "FSLH": "?", "GRAVE": "~",
+}
+
+# Operator macros count as code keys too.
+CODE_MACROS = {"arrow", "fatarrow", "noteq", "eqeqeq", "dcolon"}
+
+# Lookup table order: braces first, since that is what you hunt for most.
+SYMBOL_GROUPS = [
+    ("Brackets", "( ) [ ] { } < >"),
+    ("Operators", "= + - * / % ^ & | ! ~"),
+    ("Punctuation", "; : , . ' \" ` _ \\ ? @ # $"),
+    ("Operator macros", "-> => != === ::"),
+]
+
 MODSYM = {"LG": "⌘", "RG": "⌘", "LA": "⌥", "RA": "⌥",
           "LC": "⌃", "RC": "⌃", "LS": "⇧", "RS": "⇧",
           "HYP": "⌃⌥⌘⇧"}
@@ -125,6 +157,9 @@ def label(binding, layer_names):
         if args[0] in WIN_LABEL:
             main, sub = WIN_LABEL[args[0]]
             return main, sub, "win"
+        ch = CHAR.get(args[0])
+        if ch:
+            return kc(args[0]), "", "brace" if ch in BRACES else "code"
         return kc(args[0]), "", "key"
     if b == "trans":
         return "▽", "", "trans"
@@ -172,6 +207,8 @@ def label(binding, layer_names):
         return "Boot", "", "special"
     if b == "studio_unlock":
         return "Unlock", "", "special"
+    if b in CODE_MACROS:
+        return MACRO_LABEL[b], "", "code"
     if b in MACRO_LABEL:
         return MACRO_LABEL[b], "", "macro"
     return b, "", "special"
@@ -399,6 +436,8 @@ FILL = {
     "special": ("#E6F1FB", "#85B7EB", "#042C53"),
     "mouse": ("#FBEAF0", "#ED93B1", "#4B1528"),
     "win": ("#E4F4F7", "#5AB7C8", "#06333C"),
+    "brace": ("#FCE3DE", "#D85A3F", "#5A1408"),
+    "code": ("#F0F7D9", "#8DB33A", "#253300"),
 }
 
 
@@ -413,16 +452,20 @@ def svg(layer, layer_names):
         main, sub, kind = label(binding, layer_names)
         x, y = POS[i]
         bg, br, fg = FILL[kind]
+        sw = 2.5 if kind == "brace" else 1
         out.append(
             f'<rect x="{x}" y="{y}" width="{KW}" height="{KH}" rx="5" '
-            f'fill="{bg}" stroke="{br}" stroke-width="1"/>'
+            f'fill="{bg}" stroke="{br}" stroke-width="{sw}"/>'
         )
         if main:
             fs = 13 if len(main) <= 5 else (11 if len(main) <= 8 else 9)
-            ty = y + (18 if sub else 24)
+            if kind == "brace":
+                fs = 17
+            ty = y + (18 if sub else (26 if kind == "brace" else 24))
+            weight = ' font-weight="700"' if kind == "brace" else ""
             out.append(
                 f'<text x="{x + KW/2}" y="{ty}" text-anchor="middle" '
-                f'font-size="{fs}" fill="{fg}">{esc(main)}</text>'
+                f'font-size="{fs}"{weight} fill="{fg}">{esc(main)}</text>'
             )
         if sub:
             out.append(
@@ -478,6 +521,76 @@ def nav_summary(layers):
     return reach
 
 
+# Toggled duplicates of Base. Their symbols are already found on Base, so listing
+# them would only add noise to the lookup.
+LOOKUP_SKIP = {"Kp", "Colemak"}
+
+
+def symbol_index(layers, reach):
+    """char -> list of (layer index, position, shifted), best way first."""
+    idx = {}
+    for li, layer in enumerate(layers):
+        if layer["disp"] in LOOKUP_SKIP:
+            continue
+        for pos, b in enumerate(layer["bindings"]):
+            p = b.split()
+            if p[0] in CODE_MACROS:
+                idx.setdefault(MACRO_LABEL[p[0]], []).append((li, pos, False))
+                continue
+            if p[0] == "kp":
+                code = p[1]
+            elif p[0] in ("hml", "hmr", "hm"):
+                code = p[2]
+            else:
+                continue
+            if code in CHAR:
+                idx.setdefault(CHAR[code], []).append((li, pos, False))
+            if code in SHIFTED and layer["disp"] in ("Base", "Sym"):
+                idx.setdefault(SHIFTED[code], []).append((li, pos, True))
+    for ch, ways in idx.items():
+        # Shift on a layer is pointless when the same layer has it unshifted.
+        plain = {li for li, _, s in ways if not s}
+        ways[:] = sorted({w for w in ways if not (w[2] and w[0] in plain)},
+                         key=lambda w: (w[2], w[0], w[1]))
+    return idx
+
+
+def how_to_type(way, layers, reach):
+    li, pos, shifted = way
+    key = f"<kbd>{esc(PHYS.get(pos, str(pos)))}</kbd>"
+    if shifted:
+        key = "<kbd>⇧</kbd> + " + key
+    if li == 0:
+        return key
+    name = layers[li]["disp"]
+    via = next(((p, v) for l, p, v in reach.get(name, []) if l == layers[0]["disp"]),
+               None)
+    if not via:
+        return f"<b>{name}</b> + {key}"
+    p, v = via
+    holder = PHYS.get(p, str(p)).split(" (")[0]
+    return f"<b>{name}</b>: {v} <kbd>{esc(holder)}</kbd> + {key}"
+
+
+def symbol_lookup(layers, reach):
+    idx = symbol_index(layers, reach)
+    h = ["<h2 id='symbols'>Where's that symbol?</h2>",
+         "<p class='sub'>Every programming character and how to type it. Plain "
+         "Base keys first, then layers, then Shift combos. Brackets are outlined "
+         "in red in every diagram below, other code symbols in green.</p>",
+         "<div class='card'><table class='sym'>"]
+    for group, chars in SYMBOL_GROUPS:
+        h.append(f"<tr><th colspan='2'>{group}</th></tr>")
+        for ch in chars.split():
+            ways = idx.get(ch, [])
+            txt = " &nbsp;or&nbsp; ".join(how_to_type(w, layers, reach)
+                                           for w in ways) or "—"
+            cls = " class='brace'" if ch in BRACES else ""
+            h.append(f"<tr><td{cls}><code>{esc(ch)}</code></td><td>{txt}</td></tr>")
+    h.append("</table></div>")
+    return "\n".join(h)
+
+
 CSS = """
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
  margin:0;padding:32px;background:#faf9f5;color:#2c2c2a;line-height:1.6}
@@ -496,6 +609,11 @@ th,td{text-align:left;padding:5px 14px 5px 0;border-bottom:1px solid #e6e4dc}
 th{font-weight:500;color:#5f5e5a}
 .on{color:#5f5e5a}
 code{background:#f1efe8;padding:1px 5px;border-radius:4px;font-size:13px}
+kbd{font-family:inherit;font-size:13px;background:#fff;border:1px solid #d7d5cc;
+ border-bottom-width:2px;border-radius:4px;padding:0 6px}
+.sym th{padding-top:14px}
+.sym td:first-child code{font-size:16px;font-weight:600}
+.sym td.brace code{background:#FCE3DE;color:#5A1408}
 @media print{body{padding:0;background:#fff}.card{break-inside:avoid;
  page-break-inside:avoid}h2{page-break-after:avoid}}
 """
@@ -515,7 +633,8 @@ def main():
          "<p class='sub'>Generated from <code>config/adv360.keymap</code> by "
          "<code>bin/keymap-diagram.py</code>. Do not edit by hand.</p>",
          "<div class='legend'>"]
-    for kind, lbl in [("key", "key"), ("hrm", "home-row mod"),
+    for kind, lbl in [("key", "key"), ("brace", "bracket"),
+                      ("code", "code symbol"), ("hrm", "home-row mod"),
                       ("nav", "layer navigation"), ("macro", "macro"),
                       ("mouse", "pointer"),
                       ("win", "window management"),
@@ -524,6 +643,8 @@ def main():
         h.append(f"<span><i class='sw' style='background:{bg};"
                  f"border-color:{br}'></i>{lbl}</span>")
     h.append("</div>")
+
+    h.append(symbol_lookup(layers, reach))
 
     h.append("<h2>Reaching each layer</h2><table>"
              "<tr><th>Layer</th><th>How to get there</th></tr>")

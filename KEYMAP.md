@@ -184,6 +184,10 @@ Right hand carries code operators: `Y` → `->`, `U` → `=>`, `I` → `!=`, `O`
 
 `_` and `+` come free by holding Shift over `-` and `=`.
 
+For every programming character and every way to type it, see **Where's that symbol?** at
+the top of `docs/keymap.html`. Brackets are outlined in red and other code symbols shaded
+green in every layer diagram there.
+
 ### Num — hold `Home`, or tap `End` for a single digit
 
 ```
